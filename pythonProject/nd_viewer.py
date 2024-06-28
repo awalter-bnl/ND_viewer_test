@@ -4,6 +4,7 @@ import numpy as np
 import xarray as xr
 
 
+# noinspection PyUnresolvedReferences
 class LinkableSlider(mpl.widgets.Slider):
     """A child of mpl.widgets.Slider which allows linking sliders to each other.
 
@@ -62,16 +63,17 @@ class LinkableSlider(mpl.widgets.Slider):
         super().__init__(*args, **kwargs)
 
 
+# noinspection PyDefaultArgument
 def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
                close_figures=True, **kwargs):
-    '''Allows to plot multiple linked 'multislice views' in the same figure.
+    """Allows to plot multiple linked 'multislice views' in the same figure.
 
     This function allows for multiple, linked, 'multislice views', generated
     using 'multislice_view' to be plotted in the same figure. It creates a
     global figure, with subfigures for each 'view', and then creates each of the
      views keeping track of the 'controls' object returned so that they are all
      linked. For a description of the plots displayed please see the description
-      of 'multiuslice_view'.
+      of 'multislice_view'.
 
     Parameters:
     -----------
@@ -125,10 +127,10 @@ def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
         dimensions, it is an updated version of the object that is passed in
         with any additional buttons required for this view added.
 
-    '''
+    """
 
-    def _parse_args(view_args):
-        '''Parses the arguments passed in to a list of 3 value lists associated
+    def _parse_args(_view_args):
+        """Parses the arguments passed in to a list of 3 value lists associated
         with each xarray listed in args.
 
         This will loop through all the items in *args and create a list of 3
@@ -138,7 +140,7 @@ def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
 
         Parameters
         ----------
-        *view_args:
+        *_view_args:
             Has the structure:
 
             .. code-block:: python
@@ -158,16 +160,15 @@ def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
             A list of 3 element lists for each xarray for which a multislice
             view is required.
 
-        '''
+        """
 
         split = []
         temp = []
-        position = 0
-        for i, item in enumerate(view_args):
+        for _i, item in enumerate(_view_args):
             if type(item) is xr.DataArray:  # if the item is a data array
-                if temp: split.append(temp)
-                position = 0
-                temp = [item, None, f'Multislice View {i + 1}']
+                if temp:
+                    split.append(temp)
+                temp = [item, None, f'Multislice View {_i + 1}']
             elif type(item) is list:
                 temp[1] = item
             elif type(item) is str:
@@ -175,9 +176,10 @@ def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
             else:
                 raise ValueError(f'Expected items in args to contain an '
                                  f'xarray.DataArray, a list or a str instead '
-                                 f'got {item} in {view_args}')
+                                 f'got {item} in {_view_args}')
 
-        if temp: split.append(temp)  # add the last group
+        if temp:
+            split.append(temp)  # add the last group
 
         return split
 
@@ -215,11 +217,12 @@ def multislice(*view_args, controls={}, buttons={}, fig_scale=1,
     return fig, controls, buttons
 
 
+# noinspection PyDefaultArgument,PyUnboundLocalVariable,PyUnresolvedReferences
 def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
                     figure_title='Multislice View', fontsize=8,
                     cursor_colours=['lightgrey', 'orange', 'yellow'],
                     close_figures=True, fig_scale=1):
-    '''Displays 2D and 1D 'slices' through 'N-D' datasets.
+    """Displays 2D and 1D 'slices' through 'N-D' datasets.
 
     This function is designed to display 1(3) 2D 'slices' and the corresponding
     1D 'slices' from an 'ND' dataset. It displays a single 2D/two 1D slices if
@@ -297,10 +300,11 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
         dimensions, it is an updated version of the object that is passed in
         with any additional buttons required for this view added.
 
-    '''
+    """
 
-    def _generate_layout(main_dims, extra_dims, fig=None):
-        '''Generates the figure layouts and axes.
+    # noinspection PyUnboundLocalVariable,PyUnresolvedReferences
+    def _generate_layout(_main_dims, extra_dims, _fig=None):
+        """Generates the figure layouts and axes.
 
         sub-function that generates the layout of the plot and returns
         dictionaries mapping dimension names to matplotlib.axes for the 2D
@@ -333,47 +337,45 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
             Dictionary mapping dimension names to a dictionary mapping the keys
             'slider', 'left button', 'right button' to matplotlib.axes objects
             to be used for the widget controlling that dimension.
-        '''
-        if len(main_dims) == 3:
-            indices_map2D = {(main_dims[2], main_dims[1]): [0, 0],
-                             (main_dims[0], main_dims[2]): [1, 1],
-                             (main_dims[0], main_dims[1]): [0, 1]}
+        """
+        if len(_main_dims) == 3:
+            indices_map2D = {(_main_dims[2], _main_dims[1]): [0, 0],
+                             (_main_dims[0], _main_dims[2]): [1, 1],
+                             (_main_dims[0], _main_dims[1]): [0, 1]}
             layout_map = {
-                (main_dims[2], main_dims[1]):
+                (_main_dims[2], _main_dims[1]):
                     {'left': 0.19, 'right': 0.99, 'bottom': 0.01, 'top': 0.76},
-                (main_dims[0], main_dims[2]):
+                (_main_dims[0], _main_dims[2]):
                     {'left': 0.01, 'right': 0.81, 'bottom': 0.24, 'top': 0.99},
-                (main_dims[0], main_dims[1]):
+                (_main_dims[0], _main_dims[1]):
                     {'left': 0.01, 'right': 0.81, 'bottom': 0.01, 'top': 0.76}}
             indices1D = [1, 0]  # gives the 1D plot grid indices.
-            control_index = 2  # gives the row index for the controls
 
-        elif len(main_dims) == 2:
-            indices_map2D = {(main_dims[0], main_dims[1]): [0, 1]}
+        elif len(_main_dims) == 2:
+            indices_map2D = {(_main_dims[0], _main_dims[1]): [0, 1]}
             layout_map = {
-                (main_dims[0], main_dims[1]):
+                (_main_dims[0], _main_dims[1]):
                     {'left': 0.01, 'right': 0.81, 'bottom': 0.01, 'top': 0.76}}
             indices1D = [0, 0]  # gives the 1D plot grid indices.
-            control_index = 1  # gives the row index for the controls
 
-        num_controls = max(len(main_dims), len(extra_dims))
-        if not fig:
+        num_controls = max(len(_main_dims), len(extra_dims))
+        if not _fig:
             fig_delta = 0.12
-            fig = plt.figure(figsize=[40 * fig_delta * fig_scale,
-                                      (20 * fig_delta + 22 * fig_delta +
-                                       num_controls * fig_delta) * fig_scale])
+            _fig = plt.figure(figsize=[40 * fig_delta * fig_scale,
+                                       (20 * fig_delta + 22 * fig_delta +
+                                        num_controls * fig_delta) * fig_scale])
 
-        fig.suptitle(figure_title)
-        height_ratios = [len(main_dims) - 1, 0.05 * num_controls,
-                         abs(len(main_dims) - 3)]
-        subfigs = fig.subfigures(3, 1, height_ratios=height_ratios)
+        _fig.suptitle(figure_title)
+        height_ratios = [len(_main_dims) - 1, 0.05 * num_controls,
+                         abs(len(_main_dims) - 3)]
+        subfigs = _fig.subfigures(3, 1, height_ratios=height_ratios)
         # Required workaround to an mpl bug where the default facecolor of
         # subfigures is not transparent
         for subfig in subfigs.flat:
             subfig.set_facecolor((1, 1, 1, 0.1))
 
         plot_subfigs = subfigs[0].subfigures(
-            len(main_dims) - 1, 2, width_ratios=[1, 1],
+            len(_main_dims) - 1, 2, width_ratios=[1, 1],
             squeeze=False)  # splits plot subfigs
         # Required workaround to an mpl bug where the default facecolor of
         # subfigures is not transparent
@@ -381,87 +383,87 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
             subfig.set_facecolor((1, 1, 1, 0.1))
 
             # 2D layout
-        axes2D = {}
+        _axes2D = {}
         for axes_dims, indices2D in indices_map2D.items():
-            axes2D[axes_dims] = plot_subfigs[
+            _axes2D[axes_dims] = plot_subfigs[
                 indices2D[0],
                 indices2D[1]].subplots(1, 1, gridspec_kw=layout_map[axes_dims])
-            if len(main_dims) == 3:
-                if axes_dims == (main_dims[2], main_dims[1]):
-                    axes2D[axes_dims].set_xlabel(data.dims[2],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].xaxis.set_label_position('top')
-                    axes2D[axes_dims].set_ylabel(data.dims[1],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].yaxis.set_label_position('left')
-                    axes2D[axes_dims].invert_xaxis()
-                    axes2D[axes_dims].tick_params(top=True, labeltop=True,
-                                                  bottom=True, labelbottom=True,
-                                                  left=True, labelleft=True,
-                                                  right=True, labelright=False,
-                                                  labelsize=fontsize*fig_scale)
+            if len(_main_dims) == 3:
+                if axes_dims == (_main_dims[2], _main_dims[1]):
+                    _axes2D[axes_dims].set_xlabel(data.dims[2],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].xaxis.set_label_position('top')
+                    _axes2D[axes_dims].set_ylabel(data.dims[1],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].yaxis.set_label_position('left')
+                    _axes2D[axes_dims].invert_xaxis()
+                    _axes2D[axes_dims].tick_params(top=True, labeltop=True,
+                                                   bottom=True, labelbottom=True,
+                                                   left=True, labelleft=True,
+                                                   right=True, labelright=False,
+                                                   labelsize=fontsize*fig_scale)
 
-                elif axes_dims == (main_dims[0], main_dims[2]):
-                    axes2D[axes_dims].set_xlabel(data.dims[0],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].set_ylabel(data.dims[2],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].yaxis.set_label_position('right')
-                    axes2D[axes_dims].tick_params(top=True, labeltop=False,
-                                                  bottom=True, labelbottom=True,
-                                                  left=True, labelleft=False,
-                                                  right=True, labelright=True,
-                                                  labelsize=fontsize*fig_scale)
-                elif axes_dims == (main_dims[0], main_dims[1]):
-                    axes2D[axes_dims].set_xlabel(data.dims[0],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].xaxis.set_label_position('top')
-                    axes2D[axes_dims].set_ylabel(data.dims[1],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].yaxis.set_label_position('right')
-                    axes2D[axes_dims].tick_params(top=True, labeltop=True,
-                                                  bottom=True, labelbottom=True,
-                                                  left=True, labelleft=False,
-                                                  right=True, labelright=True,
-                                                  labelsize=fontsize*fig_scale)
+                elif axes_dims == (_main_dims[0], _main_dims[2]):
+                    _axes2D[axes_dims].set_xlabel(data.dims[0],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].set_ylabel(data.dims[2],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].yaxis.set_label_position('right')
+                    _axes2D[axes_dims].tick_params(top=True, labeltop=False,
+                                                   bottom=True, labelbottom=True,
+                                                   left=True, labelleft=False,
+                                                   right=True, labelright=True,
+                                                   labelsize=fontsize*fig_scale)
+                elif axes_dims == (_main_dims[0], _main_dims[1]):
+                    _axes2D[axes_dims].set_xlabel(data.dims[0],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].xaxis.set_label_position('top')
+                    _axes2D[axes_dims].set_ylabel(data.dims[1],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].yaxis.set_label_position('right')
+                    _axes2D[axes_dims].tick_params(top=True, labeltop=True,
+                                                   bottom=True, labelbottom=True,
+                                                   left=True, labelleft=False,
+                                                   right=True, labelright=True,
+                                                   labelsize=fontsize*fig_scale)
             else:
-                if axes_dims == (main_dims[0], main_dims[1]):
-                    axes2D[axes_dims].set_xlabel(data.dims[0],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].xaxis.set_label_position('top')
-                    axes2D[axes_dims].set_ylabel(data.dims[1],
-                                                 fontsize=fontsize * fig_scale)
-                    axes2D[axes_dims].yaxis.set_label_position('right')
-                    axes2D[axes_dims].tick_params(top=True, labeltop=True,
-                                                  bottom=True, labelbottom=False,
-                                                  left=True, labelleft=False,
-                                                  right=True, labelright=True,
-                                                  labelsize=fontsize*fig_scale)
+                if axes_dims == (_main_dims[0], _main_dims[1]):
+                    _axes2D[axes_dims].set_xlabel(data.dims[0],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].xaxis.set_label_position('top')
+                    _axes2D[axes_dims].set_ylabel(data.dims[1],
+                                                  fontsize=fontsize * fig_scale)
+                    _axes2D[axes_dims].yaxis.set_label_position('right')
+                    _axes2D[axes_dims].tick_params(top=True, labeltop=True,
+                                                   bottom=True, labelbottom=False,
+                                                   left=True, labelleft=False,
+                                                   right=True, labelright=True,
+                                                   labelsize=fontsize*fig_scale)
 
         # 1D layout
-        if len(main_dims) == 3:
+        if len(_main_dims) == 3:
             layout = {'left': 0.19, 'right': 0.99, 'bottom': 0.12, 'top': 0.99,
                       'hspace': 0.65}
         else:
             layout = {'left': 0.19, 'right': 0.99, 'bottom': 0.15, 'top': 0.76,
                       'hspace': 0.65}
-        axes1D = {}
+        _axes1D = {}
         for i, subplot in enumerate(plot_subfigs[
-            indices1D[0],
-            indices1D[1]].subplots(len(main_dims), 1, gridspec_kw=layout)):
-            axes1D[(main_dims[i],)] = subplot
-            axes1D[(main_dims[i],)].set_xlabel(data.dims[i], labelpad=1.0,
-                                               fontsize=fontsize * fig_scale)
-            axes1D[(main_dims[i],)].set_ylabel('Arb. units', labelpad=1.0,
-                                               fontsize=fontsize * fig_scale)
-            axes1D[(main_dims[i],)].tick_params(top=False, labeltop=False,
-                                                bottom=True, labelbottom=True,
-                                                left=True, labelleft=True,
-                                                right=False, labelright=False,
-                                                labelsize=fontsize * fig_scale)
+                indices1D[0],
+                indices1D[1]].subplots(len(_main_dims), 1, gridspec_kw=layout)):
+            _axes1D[(_main_dims[i],)] = subplot
+            _axes1D[(_main_dims[i],)].set_xlabel(data.dims[i], labelpad=1.0,
+                                                 fontsize=fontsize * fig_scale)
+            _axes1D[(_main_dims[i],)].set_ylabel('Arb. units', labelpad=1.0,
+                                                 fontsize=fontsize * fig_scale)
+            _axes1D[(_main_dims[i],)].tick_params(top=False, labeltop=False,
+                                                  bottom=True, labelbottom=True,
+                                                  left=True, labelleft=True,
+                                                  right=False, labelright=False,
+                                                  labelsize=fontsize * fig_scale)
 
         # Control layout
-        axesC = {}
+        _axesC = {}
         controls_subfigs = subfigs[1].subfigures(1, 2)
         # Required workaround to an mpl bug where the default facecolor of
         # subfigures is not transparent
@@ -471,35 +473,35 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
         main_subfigs = controls_subfigs[1].subfigures(num_controls, 4,
                                                       width_ratios=[14, 1, 1,
                                                                     2])
-        for i, dim in enumerate(main_dims):
-            axesC[dim] = {'slider': main_subfigs[i][0].add_axes([0.1, 0, 0.65,
-                                                                 1]),
-                          'left_button': main_subfigs[i][1].add_axes([0, 0, 1,
+        for i, dim in enumerate(_main_dims):
+            _axesC[dim] = {'slider': main_subfigs[i][0].add_axes([0.1, 0, 0.65,
+                                                                  1]),
+                           'left_button': main_subfigs[i][1].add_axes([0, 0, 1,
                                                                       1]),
-                          'right_button': main_subfigs[i][2].add_axes([0, 0, 1,
+                           'right_button': main_subfigs[i][2].add_axes([0, 0, 1,
                                                                        1])}
 
         extra_subfigs = controls_subfigs[0].subfigures(num_controls, 4,
                                                        width_ratios=[2, 14, 1,
                                                                      1])
         for i, dim in enumerate(extra_dims):
-            axesC[dim] = {'slider': extra_subfigs[i][1].add_axes([0.1, 0, 0.65,
-                                                                  1]),
-                          'left_button': extra_subfigs[i][2].add_axes([0, 0, 1,
+            _axesC[dim] = {'slider': extra_subfigs[i][1].add_axes([0.1, 0, 0.65,
+                                                                   1]),
+                           'left_button': extra_subfigs[i][2].add_axes([0, 0, 1,
                                                                        1]),
-                          'right_button': extra_subfigs[i][3].add_axes([0, 0, 1,
+                           'right_button': extra_subfigs[i][3].add_axes([0, 0, 1,
                                                                         1])}
 
-        return fig, axes2D, axes1D, axesC
+        return _fig, _axes2D, _axes1D, _axesC
 
-    def _slider_update_factory(slider, dim):
-        '''A function generator for the slider widgets.
+    def _slider_update_factory(_slider, dim):
+        """A function generator for the slider widgets.
 
-        XXXXX
+        TO DO: Add a description here
 
         Parameters
         ----------
-        slider: mpl.widgets.Slider,
+        _slider: mpl.widgets.Slider,
             The mpl.widgets.Slider that the update function is meant to work on.
         dim : str.
             The name of the dimension that this slider adjusts
@@ -508,69 +510,69 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
         -------
         _update : function,
             The update function that can be used by the slider widget.
-        '''
+        """
 
         def _update(val):
-            '''An specific update function to be used by widgets.
+            """An specific update function to be used by widgets.
 
             Parameters
             ----------
             val : float.
                 The value that the slider returns.
-            '''
+            """
 
-            def _slider_update(_slider, val):
+            def _slider_update(_slider, _val):
                 # Update the associated plots
-                for axis_dims, plot in _slider.plots.items():
-                    if dim not in axis_dims:
+                for _axis_dims, plot in _slider.plots.items():
+                    if dim not in _axis_dims:
                         indexers = {d: sliders[0].val
                                     for d, sliders in controls.items()
-                                    if d not in axis_dims}
-                        _slice = data.sel(indexers, method="nearest")
+                                    if d not in _axis_dims}
+                        __slice = data.sel(indexers, method="nearest")
 
-                        if len(axis_dims) == 2:  # 2Dplot
-                            if _slider.plot_parameters[axis_dims]['transpose']:
-                                _slice = _slice.T
-                            for flip_dim in _slider.plot_parameters[axis_dims][
-                                'flip_dims']:
-                                _slice = _slice.isel({flip_dim: slice(None,
-                                                                      None,
-                                                                      -1)})
-                            plot.set_data(_slice)
-                            plot.norm.autoscale([float(_slice.min()),
-                                                 float(_slice.max())])
+                        if len(_axis_dims) == 2:  # 2Dplot
+                            if _slider.plot_parameters[_axis_dims]['transpose']:
+                                __slice = __slice.T
+                            for _flip_dim in _slider.plot_parameters[_axis_dims][
+                                    'flip_dims']:
+                                __slice = __slice.isel({_flip_dim: slice(None,
+                                                                         None,
+                                                                         -1)})
+                            plot.set_data(__slice)
+                            plot.norm.autoscale([float(__slice.min()),
+                                                 float(__slice.max())])
                             plot.axes.draw_artist(plot)
-                        elif len(axis_dims) == 1:  # 1Dplot
-                            for flip_dim in _slider.plot_parameters[axis_dims][
-                                'flip_dims']:
-                                _slice = _slice.isel({flip_dim: slice(None,
-                                                                      None,
-                                                                      -1)})
-                            plot.set_ydata(_slice)
-                            plot.axes.set_ylim(float(_slice.min()),
-                                               float(_slice.max()))
+                        elif len(_axis_dims) == 1:  # 1Dplot
+                            for _flip_dim in _slider.plot_parameters[_axis_dims][
+                                    'flip_dims']:
+                                __slice = __slice.isel({_flip_dim: slice(None,
+                                                                         None,
+                                                                         -1)})
+                            plot.set_ydata(__slice)
+                            plot.axes.set_ylim(float(__slice.min()),
+                                               float(__slice.max()))
                             plot.axes.draw_artist(plot)
                         else:
                             raise ValueError(
                                 f'In a multislice_view._slider_update_factory.'
                                 f'_update call Expected the keys in '
                                 f'_slider.plots to be a 1D or 2D list of '
-                                f'dimension names but instead got {axis_dims}.')
+                                f'dimension names but instead got {_axis_dims}.')
 
                 # Update the associated Cursors
-                for axis_dims, axis_cursors in _slider.cursors.items():
-                    if axis_dims[0] == dim:
+                for _axis_dims, axis_cursors in _slider.cursors.items():
+                    if _axis_dims[0] == dim:
                         for x_cursor in axis_cursors['x']:
-                            x_cursor.set_xdata([val, val])
+                            x_cursor.set_xdata([_val, _val])
                             x_cursor.axes.draw_artist(x_cursor)
-                    if len(axis_dims) == 2 and axis_dims[1] == dim:
+                    if len(_axis_dims) == 2 and _axis_dims[1] == dim:
                         for y_cursor in axis_cursors['y']:
-                            y_cursor.set_ydata([val, val])
+                            y_cursor.set_ydata([_val, _val])
                             y_cursor.axes.draw_artist(y_cursor)
-            _slider_update(slider, val)
+            _slider_update(_slider, val)
 
             # update the linked sliders
-            for linked_slider in slider.linked_sliders:
+            for linked_slider in _slider.linked_sliders:
                 _slider_update(linked_slider, val)
                 eventson_state = linked_slider.eventson
                 linked_slider.eventson = False
@@ -579,15 +581,15 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
 
         return _update
 
-    def _button_update_factory(slider, direction='forward'):
-        '''Returns an update function for forward/back buttons/
+    def _button_update_factory(_slider, direction='forward'):
+        """Returns an update function for forward/back buttons/
 
         This is a wrapper function that will return an update function that
         increases/decreases the value of 'slider' by one on clicking.
 
         Parameters
         ----------
-        slider: mpl.widgets.Slider,
+        _slider: mpl.widgets.Slider,
             The mpl.widgets.Slider object that should be updated on button
             click.
         direction: str, optional.
@@ -598,16 +600,17 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
         -------
         _update : function,
             The update function that can be used by the button widget.
-        '''
+        """
         if direction not in ['forward', 'backward']:
             raise ValueError('In multislice_layout._update_button_wrapper the '
                              '"direction" parameter is not "forward" or '
                              '"backward" as required. direction = {direction}')
 
+        # noinspection PyUnusedLocal
         def _update(*args, **kwargs):
             index_step = 1 if direction == 'forward' else -1
-            current_index = np.abs(slider.valstep.values - slider.val).argmin()
-            slider.set_val(slider.valstep.values[current_index + index_step])
+            current_index = np.abs(_slider.valstep.values - _slider.val).argmin()
+            _slider.set_val(_slider.valstep.values[current_index + index_step])
 
         return _update
 
@@ -615,7 +618,7 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
         # acts like a global if passed in
         controls = {}
 
-    ### FUNCTION STARTS HERE
+    # FUNCTION STARTS HERE
     # Add some ValueError checks here.
     if type(data) not in [xr.core.dataarray.DataArray] or len(data.shape) < 2:
         raise ValueError(f'The data parameter in a  call to multislice_layout is'
@@ -644,9 +647,9 @@ def multislice_view(data, main_dims=None, fig=None, controls={}, buttons={},
 
     # generate the layout and return the required axes.
     fig, axes2D, axes1D, axesC = _generate_layout(
-        main_dims=main_dims,
+        _main_dims=main_dims,
         extra_dims=[dim for dim in data.dims if dim not in main_dims],
-        fig=fig)
+        _fig=fig)
 
     # Make the 2D plots
     plots = {}
