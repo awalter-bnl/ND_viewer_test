@@ -89,8 +89,8 @@ def kreios_3d_k_space(energy_range=(-1, 12),
     # generate the 3D volume.
     grid = np.fromfunction(_calc_val, (len(x_array), len(y_array),
                                        len(z_array)),
-                           x_array=x_array, y_array=y_array, z_array=z_array,
-                           temp=temp, dtype=int)
+                           _x_array=x_array, _y_array=y_array, _z_array=z_array,
+                           _temp=temp, dtype=int)
     # apply the symmetry to the bands
     temp_grid = np.copy(grid)
     mask = np.copy(grid)
